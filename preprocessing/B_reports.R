@@ -94,10 +94,20 @@ fun<-function(L,nm) {
         hist(time.invested/24,breaks=25,xlab="days",main="hist (time invested | complete half")
         mtext(side=3,adj=0,"G")
     }
+
+    ## coe<-numeric()
+    ## for (i in which(pi)) {
+    ##     as.numeric(first_view[i,-1])->t
+    ##     cbind(1:length(t),t)->tmp
+    ##     lm(tmp[,2]~tmp[,1])->mod
+    ##     coef(mod)[2]->coe[as.character(i)]
+    ## }
+    ## hist(coe)
+    
     ##########################################################
     first_attempt[pi,-1]->fa.hold
-    if (nrow(fa.hold)>200) {
-        sample(1:nrow(fa.hold),200)->random.index
+    if (nrow(fa.hold)>30) {
+        sample(1:nrow(fa.hold),30)->random.index
         fa.hold[random.index,]->fa.hold
     }
     apply(fa.hold,2,as.numeric)->fa.hold
@@ -114,7 +124,8 @@ fun<-function(L,nm) {
     axis(side=1,at=seq(0,M,length.out=5),round(seq(0,M,length.out=5)/(60*60*24),1))
     for (i in 1:nrow(fa)) {
         abline(h=i,lty=1,lwd=.3)
-        points(fa[i,],rep(i,ncol(fa)),cex=.4,pch=19)
+        #points(fa[i,],rep(i,ncol(fa)),cex=.4,pch=19)
+        text(fa[i,],rep(i,ncol(fa)),1:ncol(fa),cex=.4)
     }
     ##########################################################
     #first_attempt[pi,-1]->fa
