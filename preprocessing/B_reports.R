@@ -1,4 +1,4 @@
-load(file="/tmp/resp.Rdata")
+load(file="~/moocs/resp.Rdata")
 
 fun<-function(L,nm) {
     pdf(paste("/tmp/mooc-",nm,".pdf",sep=""))

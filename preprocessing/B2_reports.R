@@ -1,4 +1,4 @@
-load(file="/tmp/resp.Rdata")
+load(file="~/moocs/resp.Rdata")
 sapply(dat,length)->N
 dat[N>0]->dat
 grep("NetworkingSP",names(dat))->i
@@ -82,7 +82,7 @@ fun<-function(L,nm) {
         rs/ncol(gr)->rs
         rs>=0.5 -> pi #these are people that complete at least half the items
         colMeans(!is.na(gr[pi,,drop=FALSE]))->cs
-        plot(cs,type="l",main="")
+        plot(cs,type="l",main="",sub=paste(length(rs[pi]),"people"))
         mtext(side=3,line=0,nm)
         NULL
     }
@@ -119,7 +119,7 @@ fun<-function(L,nm) {
             summary(time.invested/24)
                                         #plot(density(time.invested/24,na.rm=TRUE))
             if (sum(!is.na(time.invested))==0) plot(NULL,xlim=c(1,2),ylim=c(1,2),)
-             else hist(time.invested/24,breaks=25,xlab="days",main="")
+             else hist(time.invested/24,breaks=25,xlab="days",main="",sub=paste(length(rs[pi]),"people"))
             mtext(side=3,line=0,nm)
             abline(v=0,col="red")
         }
@@ -163,7 +163,7 @@ fun<-function(L,nm) {
         if (sum(!is.na(tfa))>0) {
             ifelse(tfa>3600,3600,tfa)->tfa
             apply(tfa,2,median,na.rm=TRUE)->tab
-            hist(tab/60,breaks=35,xlab="")
+            hist(tab/60,breaks=35,xlab="",sub=paste(length(rs[pi]),"people"))
             abline(v=0,col="red")
             mtext(side=3,line=0,nm)
                                         #
