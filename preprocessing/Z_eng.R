@@ -205,7 +205,7 @@ for (course in courses) {
                 mtext(side=3,adj=0,"")
             }
             ##########################################################
-            frame()
+            plot(NULL,bty="n",xlim=c(0,1),ylim=c(0,1),main=course)
             frame()
             NULL
         }
