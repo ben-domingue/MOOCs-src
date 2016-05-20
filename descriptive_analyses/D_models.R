@@ -1,0 +1,1 @@
+## Finally, we consider psychometric models (e.g., does a consideration of responsive time offer new information about learner ability or engagement compared to item response alone) of MOOC item responses in light of above findings. 
