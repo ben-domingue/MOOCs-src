@@ -31,16 +31,24 @@ courses<-list(ResGeo="EarthSciences_ResGeo202_Spring2015",
 
 tab<-dat<-list()
 for (course in unlist(courses)) {
-    L<-list()
+    id.list<-L<-list()
     setwd("/home/bd/Dropbox/moocs/data/datastage.stanford.edu/researcher/EDUC_353A/exports_5-12/raws")
     read.csv(paste(course,"_ProblemMetadata.csv",sep=""))->pm
     setwd(paste("/home/bd/Dropbox/moocs/data/datastage.stanford.edu/researcher/EDUC_353A/exports_5-12/transforms/",course,sep=""))
     list.files()->lf
     grep("export_summary.txt",lf)->index
     lf[-index]->lf
-    for (fn in lf) {
+    for (ii in 1:length(lf)) {
+        lf[ii]->fn
         skip<-0
         read.csv(fn,header=FALSE)->fv
+        if (ii==1) {
+            fv[,1]->ids
+        } else {
+            match(ids,fv[,1])->index
+            fv[index,]->fv
+        }
+        fv[,1]->id.list[[fn]]
         fv[,-1]->fv
         strsplit(as.character(fv[1,]),"-problem-",fixed=TRUE)->tmp
         sapply(tmp,"[",2)->tmp
@@ -54,10 +62,11 @@ for (course in unlist(courses)) {
             fv[,index]->fv
             fv[-1,]->fv
             fv->L[[gsub(".csv","",fn)]]
-            #assign(gsub(".csv","",fn),fv)
+                                        #assign(gsub(".csv","",fn),fv)
         }
     }
-    #
+    for (i in 2:length(id.list)) print(all(id.list[[1]]==id.list[[i]]))
+                                        #
     if (skip!=1) {
                                         #
         L$last_grade->gr

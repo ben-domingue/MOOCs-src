@@ -24,6 +24,23 @@ fun<-function(course,dat) {
 for (nm in names(dat)) fun(nm,dat)
 dev.off()
 
+fun<-function(course,dat) {
+    dat[[course]]->L
+    L$first_attempt->fa.hold
+    apply(fa.hold,2,as.numeric)->fa.hold
+    min(unlist(fa.hold),na.rm=TRUE)->m
+    as.POSIXct(m,origin="1970-01-01 00:00.00 UTC")->m.conv
+    fa.hold-m -> fa
+    fa/(30*24*60*60)->fa
+    max(unlist(fa),na.rm=TRUE)-> M
+    oo<-list()
+    for (i in 2:ncol(fa)) fa[,i]-fa[,i-1]->oo[[i]]
+    sapply(oo,function(x) sum(x<0,na.rm=TRUE)/length(x))->z
+    summary(z)
+}
+oo<-list()
+for (nm in names(dat)) fun(nm,dat)->oo[[nm]]
+
 
 #sequence of item taking
 png("~/Downloads/moocs5.png",units="in",height=9,width=7,res=100)
