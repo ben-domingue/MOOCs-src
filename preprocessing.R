@@ -1,3 +1,5 @@
+##this list contains basically the shorthand course names i am going to use.
+##we can anonymize if need be.
 courses<-list(ResGeo="EarthSciences_ResGeo202_Spring2015",
               GlobalHealth="GlobalHealth_IWHHR_Summer2014",
               MathEdu="Education_115SP_2015",
@@ -12,7 +14,7 @@ courses<-list(ResGeo="EarthSciences_ResGeo202_Spring2015",
               EP="HumanitiesSciences_EP-101_Spring2015",
               Nano="Engineering_Nano_Summer2014",
               Anes="Medicine_ANES204_Fall2014",
-           #"Engineering_Networking-SP_SelfPaced",
+           #"Engineering_Networking-SP_SelfPaced", #was a problem with this course
               Anes.v2="Medicine_ANES205_Fall2014",
               QMSE="Engineering_QMSE01._Autumn2015",
               MedStat="Medicine_MedStats_Summer2014",
@@ -29,46 +31,48 @@ courses<-list(ResGeo="EarthSciences_ResGeo202_Spring2015",
               WomensHealth.v2="GlobalHealth_INT.WomensHealth_July2015"
            )
 
+set.dir<-"/home/bd/Dropbox/moocs/data/datastage.stanford.edu/researcher/EDUC_353A/exports_5-12/"
+
 tab<-dat<-list()
 for (course in unlist(courses)) {
     id.list<-L<-list()
-    setwd("/home/bd/Dropbox/moocs/data/datastage.stanford.edu/researcher/EDUC_353A/exports_5-12/raws")
-    read.csv(paste(course,"_ProblemMetadata.csv",sep=""))->pm
-    setwd(paste("/home/bd/Dropbox/moocs/data/datastage.stanford.edu/researcher/EDUC_353A/exports_5-12/transforms/",course,sep=""))
+    read.csv(paste(set.dir,"raws/",course,"_ProblemMetadata.csv",sep=""))->pm
+    setwd(paste(set.dir,"transforms/",course,sep=""))
     list.files()->lf
     grep("export_summary.txt",lf)->index
-    lf[-index]->lf
+    lf[-index]->lf #this is the list of files that will get processed
     for (ii in 1:length(lf)) {
         lf[ii]->fn
-        skip<-0
+        skip<-0 #this is going to be used to escape from the loop when need be (e.g., sample size is too small)
         read.csv(fn,header=FALSE)->fv
         if (ii==1) {
-            fv[,1]->ids
+            fv[,1]->ids #this is the learner ids that i will match to in later iterations of this loop.
         } else {
             match(ids,fv[,1])->index
             fv[index,]->fv
         }
-        fv[,1]->id.list[[fn]]
+        fv[,1]->id.list[[fn]] #am going to get rid of the learner ids (next line), but want to first save these to make sure everything looks ok.
         fv[,-1]->fv
         strsplit(as.character(fv[1,]),"-problem-",fixed=TRUE)->tmp
         sapply(tmp,"[",2)->tmp
         strsplit(tmp,"_")->tmp
         sapply(tmp,"[",1)->tmp
-        match(pm[,1],tmp)->index
+        match(pm[,1],tmp)->index #make sure the items are in the right order
         if (any(is.na(index))) {
-            skip<-1
+            skip<-1 #if there are missing items, let's escape.
         }
         if (skip==0) {
             fv[,index]->fv
-            fv[-1,]->fv
+            fv[-1,]->fv #get rid of the first row which is just a header.
             fv->L[[gsub(".csv","",fn)]]
-                                        #assign(gsub(".csv","",fn),fv)
         }
     }
-    for (i in 2:length(id.list)) print(all(id.list[[1]]==id.list[[i]]))
-                                        #
-    if (skip!=1) {
-                                        #
+    id.test<-logical()
+    for (i in 2:length(id.list)) id.test[i-1]<-all(id.list[[1]]==id.list[[i]]) #this is just a check
+    if (!all(id.test,na.rm=TRUE)) print("problem!!!") #the NAs come from places where there are different numbers of learners in the various csv files
+    ##
+    if (skip==0) {
+        ##now get just those people that have valid responses to half the items
         L$last_grade->gr
         as.matrix(gr)->gr
         ncol(gr)->N
@@ -77,7 +81,7 @@ for (course in unlist(courses)) {
         rs/ncol(gr)->rs
         rs>=0.5 -> pi #these are people that complete at least half the items
         grep(course,courses)->index
-        if (sum(pi)>300) {
+        if (sum(pi)>300) { #300 here was somewhat arbitarary. decent sample, but also leaves 12 courses which is 4x3 (nice for figure)
             for (ii in 1:length(L)) L[[ii]][pi,]->L[[ii]]
             L->dat[[names(courses)[index] ]]
         }
@@ -87,5 +91,7 @@ for (course in unlist(courses)) {
 order(names(dat))->index
 dat[index]->dat
 do.call("rbind",tab)->tab
+tab #N people, N>.5, N items
 
+#change below directory to suit yourself
 save(dat,file="/home/bd/Dropbox/moocs/data/proc/desc1.Rdata")
