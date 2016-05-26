@@ -57,7 +57,8 @@ for (course in unlist(courses)) {
         sapply(tmp,"[",2)->tmp
         strsplit(tmp,"_")->tmp
         sapply(tmp,"[",1)->tmp
-        match(pm[,1],tmp)->index #make sure the items are in the right order
+        # match(pm[,1],tmp)->index #make sure the items are in the right order
+        unlist(lapply(pm[,1], function(x) which(tmp %in% x))) -> index
         if (any(is.na(index))) {
             skip<-1 #if there are missing items, let's escape.
         }
