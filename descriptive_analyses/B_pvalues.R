@@ -4,7 +4,7 @@ load(file="/home/bd/Dropbox/moocs/data/proc/desc1.Rdata")
 
 
 png("~/Downloads/moocs1.png",units="in",height=9,width=7,res=100)
-par(mfrow=c(4,3),mgp=c(2,1,0),mar=c(3.3,3.3,2,1))
+par(mfrow=c(4,5),mgp=c(2,1,0),mar=c(3.3,3.3,2,1))
 fun<-function(course,dat) {
     dat[[course]]->L
     infun<-function(resp) {
@@ -13,8 +13,8 @@ fun<-function(course,dat) {
     }
     infun(L$first_grade)->fp
     infun(L$last_grade)->lp
-    density(lp)->dl
-    density(fp)->df
+    density(lp,na.rm=TRUE)->dl
+    density(fp,na.rm=TRUE)->df
     range(c(dl$y,df$y))->ran
     plot(df,col="gray",ylim=ran,xlim=c(0,1),xlab=" ",ylab=" ",sub=" ",main="",lwd=3)
     mtext(side=3,line=.2,nm)
