@@ -18,7 +18,7 @@ load(file="/home/bd/Dropbox/moocs/data/proc/desc1.Rdata")
 ## dev.off()
 
 png("~/Downloads/moocs2.png",units="in",height=9,width=7,res=100)
-par(mfrow=c(4,3),mgp=c(2,1,0),mar=c(3.3,3.3,2,1))
+par(mfrow=c(4,5),mgp=c(2,1,0),mar=c(3.3,3.3,2,1))
 fun<-function(course,dat) {
     dat[[course]]->L
     L$n_attempt->zz

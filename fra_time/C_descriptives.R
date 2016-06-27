@@ -1,8 +1,9 @@
+
 load(file="/home/bd/Dropbox/moocs/data/proc/desc1.Rdata")
 
 
 #plot mean rfp versus median rt
-png("~/Downloads/moocs-time.png",units="in",height=9,width=7,res=100)
+png("/tmp/moocs-time.png",units="in",height=9,width=7,res=100)
 par(mfrow=c(4,5),mgp=c(2,1,0),mar=c(3.3,3.3,2,1))
 fun<-function(course,dat,M=20) {
     dat[[course]]->L
@@ -35,7 +36,7 @@ dev.off()
 
 
 #plot mean rfp versus median rt
-png("~/Downloads/moocs-time-item.png",units="in",height=9,width=7,res=100)
+png("/tmp/moocs-time-item.png",units="in",height=9,width=7,res=100)
 par(mfrow=c(4,5),mgp=c(2,1,0),mar=c(3.3,3.3,2,1))
 fun<-function(course,dat,M=20) {
     dat[[course]]->L
@@ -65,6 +66,45 @@ fun<-function(course,dat,M=20) {
 }
 for (nm in names(dat)) fun(nm,dat)
 dev.off()
+
+
+png("/tmp/moocs-rt-discrimination.png",units="in",height=9,width=7,res=100)
+par(mfrow=c(4,5),mgp=c(2,1,0),mar=c(3.3,3.3,2,1))
+fun<-function(course,dat,M=20) {
+    dat[[course]]->L
+    infun<-function(resp) {
+        ifelse(as.matrix(resp)=="correct",1,0)->resp
+        resp
+    }
+    infun(L$first_grade)->fp
+    rowMeans(fp,na.rm=TRUE)->rm
+    C<-numeric()
+    for (i in 1:ncol(fp)) cor(rm,fp[,i],use='p')->C[i]
+    C->fp.y
+    infun<-function(tfa) {    
+        for (i in 1:ncol(tfa)) {
+            as.numeric(tfa[,i])->z
+            z->tfa[,i]
+        }
+        as.matrix(tfa)->tfa
+        tfa/60 -> tfa
+        ifelse(tfa>M,NA,tfa)->tfa
+        apply(tfa,2,median,na.rm=TRUE)->tab
+    }
+    infun(L$time_to_first_attempt)->fp.x
+    #
+    plot(fp.x,fp.y,ylim=c(0,1),pch=19,cex=1,xlim=c(0,M),xlab="mean frp",ylab="median time till response")
+    loess(fp.y~fp.x)->mod
+    cbind(mod$x,mod$fitted)->tmp
+    tmp[order(tmp[,1]),]->tmp
+    lines(tmp,col="red",lwd=2)
+    mtext(side=3,line=.2,course)
+}
+for (nm in names(dat)) fun(nm,dat)
+dev.off()
+
+
+
 
 ## ##look at association between items and responses
 ## fun<-function(course,dat,t=15) {

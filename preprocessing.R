@@ -73,6 +73,20 @@ for (course in unlist(courses)) {
     if (!all(id.test,na.rm=TRUE)) print("problem!!!") #the NAs come from places where there are different numbers of learners in the various csv files
     ##
     if (skip==0) {
+        #getting rid of duplicate columns
+        infun<-function(resp) {
+            ifelse(as.matrix(resp)=="correct",1,0)->resp
+            resp
+        }
+        infun(L$first_grade)->fg
+        L2<-list()
+        for (i in 1:(ncol(fg)-1)) {
+            if (all(fg[,i]==fg[,i+1],na.rm=TRUE)) i->L2[[i]]
+        }
+        unlist(L2)->index
+        if (length(index)>0) {
+            for (ii in 1:length(L)) L[[ii]][,-index]->L[[ii]]
+        }
         ##now get just those people that have valid responses to half the items
         L$last_grade->gr
         as.matrix(gr)->gr
@@ -82,11 +96,11 @@ for (course in unlist(courses)) {
         rs/ncol(gr)->rs
         rs>=0.5 -> pi #these are people that complete at least half the items
         grep(course,courses)->index
-        if (sum(pi)>300) { #300 here was somewhat arbitarary. decent sample, but also leaves 12 courses which is 4x3 (nice for figure)
+        if (sum(pi)>300) { 
             for (ii in 1:length(L)) L[[ii]][pi,]->L[[ii]]
             L->dat[[names(courses)[index] ]]
         }
-        c(course,nrow(gr),sum(pi),N)->tab[[names(courses)[index]]]
+        c(course,nrow(gr),sum(pi),N+length(L2),N)->tab[[names(courses)[index]]]
     }
 }
 order(names(dat))->index
@@ -96,3 +110,4 @@ tab #N people, N>.5, N items
 
 #change below directory to suit yourself
 save(dat,file="/home/bd/Dropbox/moocs/data/proc/desc1.Rdata")
+

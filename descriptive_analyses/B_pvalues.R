@@ -23,3 +23,25 @@ fun<-function(course,dat) {
 }
 for (nm in names(dat)) fun(nm,dat)
 dev.off()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
