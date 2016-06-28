@@ -31,6 +31,8 @@ courses<-list(ResGeo="EarthSciences_ResGeo202_Spring2015",
               WomensHealth.v2="GlobalHealth_INT.WomensHealth_July2015"
            )
 
+names(courses)<-paste("C",1:length(courses),sep="-")
+
 set.dir<-"/home/bd/Dropbox/moocs/data/datastage.stanford.edu/researcher/EDUC_353A/exports_5-12/"
 
 tab<-dat<-list()
@@ -73,7 +75,8 @@ for (course in unlist(courses)) {
     if (!all(id.test,na.rm=TRUE)) print("problem!!!") #the NAs come from places where there are different numbers of learners in the various csv files
     ##
     if (skip==0) {
-        #getting rid of duplicate columns
+        ncol(L$last_grade)->N1
+                                        #getting rid of duplicate columns
         infun<-function(resp) {
             ifelse(as.matrix(resp)=="correct",1,0)->resp
             resp
@@ -100,7 +103,8 @@ for (course in unlist(courses)) {
             for (ii in 1:length(L)) L[[ii]][pi,]->L[[ii]]
             L->dat[[names(courses)[index] ]]
         }
-        c(course,nrow(gr),sum(pi),N+length(L2),N)->tab[[names(courses)[index]]]
+        #c(course,nrow(gr),sum(pi),N+length(L2),N)->tab[[names(courses)[index]]]
+        c(course,nrow(gr),sum(pi),N1,N)->tab[[names(courses)[index]]]
     }
 }
 order(names(dat))->index
@@ -110,4 +114,37 @@ tab #N people, N>.5, N items
 
 #change below directory to suit yourself
 save(dat,file="/home/bd/Dropbox/moocs/data/proc/desc1.Rdata")
+
+
+tab <-
+structure(c("EarthSciences_ResGeo202_Spring2015", "GlobalHealth_IWHHR_Summer2014", 
+"Education_115SP_2015", "GSB_StocksBonds_SelfPaced", "Education_EDUC115-S_Spring2014", 
+"HumanitiesandScience_StatLearning_Winter2015", "Education_OpenKnowledge_Fall2014", 
+"HumanitiesSciences_Econ-1_Summer2014", "Engineering_Compilers_Fall2014", 
+"HumanitiesSciences_Econ_1_Summer2015", "Engineering_IntroChE_SelfStudy", 
+"HumanitiesSciences_EP-101_Spring2015", "Engineering_Nano_Summer2014", 
+"Medicine_ANES204_Fall2014", "Medicine_ANES205_Fall2014", "Engineering_QMSE01._Autumn2015", 
+"Medicine_MedStats_Summer2014", "Engineering_QMSE-01_Fall2014", 
+"Medicine_MedStats._Summer2015", "Engineering_QMSE-02_Winter2015", 
+"Medicine_MolFoundations_SelfPaced", "English_DiggingDeeper1_Winter2015", 
+"Medicine_Sci-Write_Fall2014", "English_diggingdeeper2_Spring2015", 
+"Medicine_SciWrite._Fall2015", "GlobalHealth_IntWomensHealth_Jan2015", 
+"SelfPaced_Haptics_2014", "GlobalHealth_INT.WomensHealth_July2015", 
+"3637", "2274", "282", "7293", "54130", "12007", "216", "7617", 
+"1704", "4501", "392", "1000", "1450", "457", "640", "1125", 
+"4400", "2373", "3254", "862", "71", "3117", "9083", "1434", 
+"7759", "2374", "1276", "883", "2191", "356", "86", "438", "25948", 
+"3104", "84", "1333", "128", "1039", "47", "335", "324", "194", 
+"314", "263", "1488", "394", "995", "350", "4", "1471", "2941", 
+"919", "2491", "385", "222", "98", "61", "189", "33", "171", 
+"33", "103", "36", "208", "133", "201", "73", "259", "135", "21", 
+"39", "479", "226", "517", "226", "351", "51", "98", "69", "69", 
+"69", "121", "72", "121", "35", "104", "25", "121", "33", "103", 
+"27", "107", "133", "117", "66", "253", "100", "20", "38", "373", 
+"163", "426", "162", "244", "34", "94", "69", "66", "69", "64", 
+"59", "43"), .Dim = c(28L, 5L), .Dimnames = list(c("C-1", "C-2", 
+"C-3", "C-4", "C-5", "C-6", "C-7", "C-8", "C-9", "C-10", "C-11", 
+"C-12", "C-13", "C-14", "C-15", "C-16", "C-17", "C-18", "C-19", 
+"C-20", "C-21", "C-22", "C-23", "C-24", "C-25", "C-26", "C-27", 
+"C-28"), NULL))
 

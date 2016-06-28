@@ -17,7 +17,7 @@ load(file="/home/bd/Dropbox/moocs/data/proc/desc1.Rdata")
 ## for (nm in names(dat)) fun(nm,dat)
 ## dev.off()
 
-png("~/Downloads/moocs2.png",units="in",height=9,width=7,res=100)
+png("~/Downloads/moocs2.png",units="in",height=9,width=12,res=100)
 par(mfrow=c(4,5),mgp=c(2,1,0),mar=c(3.3,3.3,2,1))
 fun<-function(course,dat) {
     dat[[course]]->L
@@ -25,8 +25,8 @@ fun<-function(course,dat) {
     #infun<-function(x) quantile(as.numeric(x),c(.01,.1,.25,.5,.75,.9,.99),na.rm=TRUE)
     infun<-function(x) quantile(as.numeric(x),c(.5,.9),na.rm=TRUE)
     apply(zz,2,infun)->z
-    density(z[1,])->df
-    density(z[2,])->dl
+    density(z[1,],na.rm=TRUE)->df
+    density(z[2,],na.rm=TRUE)->dl
     range(c(dl$y,df$y))->ran
     plot(df,col="gray",ylim=ran,xlim=c(0,5),xlab=" ",ylab=" ",sub=" ",main="",lwd=3)
     mtext(side=3,line=.2,nm)
@@ -37,7 +37,7 @@ for (nm in names(dat)) fun(nm,dat)
 dev.off()
 
 ##response time
-png("~/Downloads/moocs3.png",units="in",height=9,width=7,res=100)
+png("~/Downloads/moocs3.png",units="in",height=9,width=12,res=100)
 par(mfrow=c(4,5),mgp=c(2,1,0),mar=c(3.3,3.3,2,1))
 fun<-function(course,dat) {
     dat[[course]]->L

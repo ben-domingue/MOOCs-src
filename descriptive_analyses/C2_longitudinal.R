@@ -2,7 +2,7 @@ load(file="/home/bd/Dropbox/moocs/data/proc/desc1.Rdata")
 
 
 #trajectory
-png("~/Downloads/moocs4.png",units="in",height=9,width=7,res=100)
+png("~/Downloads/moocs4.png",units="in",height=9,width=12,res=100)
 par(mfrow=c(4,5),mgp=c(2,1,0),mar=c(3.3,3.3,2,1))
 fun<-function(course,dat) {
     options(set.seed=11012021)
@@ -43,7 +43,7 @@ for (nm in names(dat)) fun(nm,dat)->oo[[nm]]
 
 
 #sequence of item taking
-png("~/Downloads/moocs5.png",units="in",height=9,width=7,res=100)
+png("~/Downloads/moocs5.png",units="in",height=9,width=12,res=100)
 par(mfrow=c(4,5),mgp=c(2,1,0),mar=c(3.3,3.3,2,1))
 fun<-function(course,dat) {
     options(set.seed=11012021)
@@ -73,7 +73,7 @@ for (nm in names(dat)) fun(nm,dat)
 dev.off()
 
 #
-png("~/Downloads/moocs6.png",units="in",height=9,width=7,res=100)
+png("~/Downloads/moocs6.png",units="in",height=9,width=12,res=100)
 par(mfrow=c(4,5),mgp=c(2,1,0),mar=c(3.3,3.3,2,1))
 for (course in names(dat)) {
     plot(NULL,xlim=c(0,100),ylim=c(0,.1),xlab="days",ylab="",main="")

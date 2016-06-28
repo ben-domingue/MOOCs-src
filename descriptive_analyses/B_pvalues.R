@@ -3,7 +3,7 @@ load(file="/home/bd/Dropbox/moocs/data/proc/desc1.Rdata")
 ## To begin to understand this variation, we first describe variation in item characteristics (e.g. mean item response correctness) across MOOCs.
 
 
-png("~/Downloads/moocs1.png",units="in",height=9,width=7,res=100)
+png("~/Downloads/moocs1.png",units="in",height=9,width=12,res=100)
 par(mfrow=c(4,5),mgp=c(2,1,0),mar=c(3.3,3.3,2,1))
 fun<-function(course,dat) {
     dat[[course]]->L
