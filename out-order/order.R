@@ -23,11 +23,16 @@ outfun<-function(L) {
                                         ## apply(fa,1,order.fun)->ord
                                         ## t(ord)->ord
     oo<-list()
-    for (i in 1:(ncol(fa)-1)) {
-        fa[,i]>fa[,i+1] -> oo[[i]] #true here should be oo (out of order)
+    for (i in 2:(ncol(fa)-1)) {
+        fa[,i]>fa[,i+1] -> oo.after
+        fa[,i]<fa[,i-1] -> oo.before
+        oo.after & oo.before->oo[[i]] #true here should be oo (out of order)
     }
     do.call("cbind",oo)->ord
-    cbind(ord,TRUE)->ord    
+    cbind(TRUE,ord,TRUE)->ord
+
+    
+
                                         #
     ifelse(ord,NA,fg)->fg2
                                         #
@@ -37,7 +42,7 @@ outfun<-function(L) {
     fg2[,t0 & t1]->fg2
     library(mirt)
     mirt(fg2,1,itemtype="Rasch",method="EM")->mod
-    fscores(mod,method="WLE")->fs
+    fscores(mod)->fs
                                         #
     coef(mod)->co
     do.call("rbind",co[-length(co)])->co
@@ -52,10 +57,29 @@ outfun<-function(L) {
     data.frame(do.call("rbind",tmp))->df
     df[df$ord & !is.na(df$ord),]->df
                                         #
-    c(mean(df$pv),mean(df$resp))
+    c(mean(df$pv),mean(df$resp,na.rm=TRUE))
+    #
+    by(df[,c("pv","resp")],df$item,colMeans,na.rm=TRUE)->z
+    do.call("rbind",z)->z
+    plot(z[,2]-z[,1],pch=19); abline(h=0,lty=2)
+    #
+    1:nrow(z)->xv
+    loess(z[,2]-z[,1]~xv)->m
+    cbind(m$x,m$fit)->tmp
+    tmp[order(tmp[,1]),]->tmp
+    lines(tmp)
+    
+       
+    
 }
 zz<-list()
+par(mfrow=c(4,5),mgp=c(2,1,0),mar=c(3.3,3.3,2,1))
 for (i in 1:length(dat)) outfun(dat[[i]])->zz[[i]]
+
+do.call("rbind",zz)->zz
+plot(zz[,1],zz[,2],type="n")
+text(zz[,1],zz[,2],rownames(zz))
+abline(0,1)
 
 
 
