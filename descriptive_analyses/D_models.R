@@ -72,3 +72,5 @@ sapply(tab,function(x) x[2,])->z
 library(gplots)
 par(mgp=c(2,1,0),mar=c(4,10,2,2))
 barplot2(z[1,],horiz=TRUE,names.arg=colnames(z),plot.ci=TRUE,ci.l=z[1,]-1.96*z[4,],ci.u=z[1,]+1.96*z[4,],las=2)
+
+
