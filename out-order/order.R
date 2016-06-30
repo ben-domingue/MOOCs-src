@@ -1,7 +1,7 @@
 load("desc1.Rdata")
 #dat$`C-19`->L
 
-outfun<-function(L) {
+outfun<-function(L,block=NULL) {
     infun<-function(resp) {
         ifelse(as.matrix(resp)=="correct",1,0)->resp
         resp
@@ -11,7 +11,8 @@ outfun<-function(L) {
     apply(fa.hold,2,as.numeric)->fa
     min(fa,na.rm=TRUE)->m
     fa-m->fa
-                                        #
+    if (is.null(block)) block<-1:ncol(fg)
+    ## defining OO items
     oo<-list()
     for (i in 1:(ncol(fa)-1)) {
         fa[,((i+1):ncol(fa))]-fa[,i] -> del
@@ -22,12 +23,9 @@ outfun<-function(L) {
         }
         apply(del,1,find.min)->mm
         mm->oo[[i]]
-        #fa[,i]>fa[,i+1] -> oo.after
-        #fa[,i]<fa[,i-1] -> oo.before
-        #oo.after & oo.before->oo[[i]] #true here should be oo (out of order)
     }
     do.call("cbind",oo)->ord
-    cbind(TRUE,ord,TRUE)->ord
+    cbind(ord,TRUE)->ord
                                         #
     ifelse(ord,NA,fg)->fg2
                                         #
@@ -35,6 +33,13 @@ outfun<-function(L) {
     sapply(tab,function(x) 0 %in% x)->t0
     sapply(tab,function(x) 1 %in% x)->t1
     fg2[,t0 & t1]->fg2
+    #
+    fg2[,block]->fg2
+    rowSums(!is.na(fg2))->rs
+    rs>0 -> test
+    fg2[test,]->fg2
+    fg[test,]->fg
+                                        #
     library(mirt)
     mirt(fg2,1,itemtype="Rasch",method="EM")->mod
     fscores(mod)->fs
@@ -48,7 +53,7 @@ outfun<-function(L) {
     kern/(1+kern)->pv
                                         #
     tmp<-list()
-    for (i in 1:ncol(fg2)) data.frame(item=i,id=1:nrow(fg),th=fs[,1],ease=rep(co[i,2],nrow(fg)),ord=ord[,i],pv=pv[,i],resp=fg[,i])->tmp[[i]]
+    for (i in 1:ncol(fg2)) data.frame(item=i,id=1:nrow(fg2),th=fs[,1],ease=rep(co[i,2],nrow(fg2)),ord=ord[,i],pv=pv[,i],resp=fg[,i])->tmp[[i]]
     data.frame(do.call("rbind",tmp))->df
     df[df$ord & !is.na(df$ord),]->df
                                         #
@@ -71,10 +76,24 @@ for (i in 1:length(dat)) {
     outfun(dat[[i]])->zz[[i]]
     mtext(side=3,line=.2,names(dat)[i])
 }
-
-
+#
 do.call("rbind",zz)->zz
 names(dat)->rownames(zz)
+plot(zz[,1],zz[,2],type="n")
+text(zz[,1],zz[,2],rownames(zz),cex=1)
+abline(0,1)
+
+zz<-list()
+par(mfrow=c(4,5),mgp=c(2,1,0),mar=c(3.3,3.3,2,1))
+for (i in 1:length(dat)) {
+    dat[[i]]->L
+    ncol(L[[1]])->nc
+    if (nc>50) {
+        outfun(L,block=1:round(nc/2))->zz[[names(dat)[i]]]
+        mtext(side=3,line=.2,names(dat)[i])
+    }
+}
+do.call("rbind",zz)->zz
 plot(zz[,1],zz[,2],type="n")
 text(zz[,1],zz[,2],rownames(zz),cex=1)
 abline(0,1)
