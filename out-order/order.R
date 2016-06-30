@@ -1,5 +1,5 @@
 load("desc1.Rdata")
-dat$`C-19`->L
+#dat$`C-19`->L
 
 outfun<-function(L) {
     infun<-function(resp) {
@@ -9,30 +9,25 @@ outfun<-function(L) {
     infun(L$first_grade)->fg
     L$first_attempt->fa.hold
     apply(fa.hold,2,as.numeric)->fa
+    min(fa,na.rm=TRUE)->m
+    fa-m->fa
                                         #
-    #rowSums(is.na(fg))==0 -> index
-    #if (sum(index)>250) {
-                                        #fg[index,]->fg
-                                        #fa[index,]->fa
-                                        #
-                                        ## order.fun<-function(x) {
-                                        ##     order(x,na.last=NA)->x
-                                        ##     x<-1:length(x)-x #want to get rid of negatie numbers
-                                        ##     x
-                                        ## }
-                                        ## apply(fa,1,order.fun)->ord
-                                        ## t(ord)->ord
     oo<-list()
-    for (i in 2:(ncol(fa)-1)) {
-        fa[,i]>fa[,i+1] -> oo.after
-        fa[,i]<fa[,i-1] -> oo.before
-        oo.after & oo.before->oo[[i]] #true here should be oo (out of order)
+    for (i in 1:(ncol(fa)-1)) {
+        fa[,((i+1):ncol(fa))]-fa[,i] -> del
+        if (class(del)=="numeric") matrix(del,ncol=1)->del
+        find.min<-function(x) {
+            x[!is.na(x)]->x
+            if (length(x)>0) x[1]<0 else NA
+        }
+        apply(del,1,find.min)->mm
+        mm->oo[[i]]
+        #fa[,i]>fa[,i+1] -> oo.after
+        #fa[,i]<fa[,i-1] -> oo.before
+        #oo.after & oo.before->oo[[i]] #true here should be oo (out of order)
     }
     do.call("cbind",oo)->ord
     cbind(TRUE,ord,TRUE)->ord
-
-    
-
                                         #
     ifelse(ord,NA,fg)->fg2
                                         #
@@ -57,41 +52,34 @@ outfun<-function(L) {
     data.frame(do.call("rbind",tmp))->df
     df[df$ord & !is.na(df$ord),]->df
                                         #
-    c(mean(df$pv),mean(df$resp,na.rm=TRUE))
-    #
+                                        #
     by(df[,c("pv","resp")],df$item,colMeans,na.rm=TRUE)->z
     do.call("rbind",z)->z
     plot(z[,2]-z[,1],pch=19); abline(h=0,lty=2)
-    #
+                                        #
     1:nrow(z)->xv
     loess(z[,2]-z[,1]~xv)->m
     cbind(m$x,m$fit)->tmp
     tmp[order(tmp[,1]),]->tmp
     lines(tmp)
-    
-       
-    
+    return(c(mean(df$pv),mean(df$resp,na.rm=TRUE)))
 }
+
 zz<-list()
 par(mfrow=c(4,5),mgp=c(2,1,0),mar=c(3.3,3.3,2,1))
-for (i in 1:length(dat)) outfun(dat[[i]])->zz[[i]]
+for (i in 1:length(dat)) {
+    outfun(dat[[i]])->zz[[i]]
+    mtext(side=3,line=.2,names(dat)[i])
+}
+
 
 do.call("rbind",zz)->zz
+names(dat)->rownames(zz)
 plot(zz[,1],zz[,2],type="n")
-text(zz[,1],zz[,2],rownames(zz))
+text(zz[,1],zz[,2],rownames(zz),cex=1)
 abline(0,1)
 
 
 
 
-
-lm(resp~pv,df[df$ord>1,])
-
-for (i in 1:10) {
-    df[df$ord>1 & df$pv>(i-1)/10 & df$pv<i/10,]->tmp
-    if (nrow(tmp)>0) {
-        print(i)
-        print(mean(tmp$resp))
-    }
-}
 

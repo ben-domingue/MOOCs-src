@@ -31,7 +31,7 @@ courses<-list(ResGeo="EarthSciences_ResGeo202_Spring2015",
               WomensHealth.v2="GlobalHealth_INT.WomensHealth_July2015"
            )
 
-names(courses)<-paste("C",1:length(courses),sep="-")
+#names(courses)<-paste("C",1:length(courses),sep="-")
 
 set.dir<-"/home/bd/Dropbox/moocs/data/datastage.stanford.edu/researcher/EDUC_353A/exports_5-12/"
 
