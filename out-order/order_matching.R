@@ -86,6 +86,14 @@ OOfun<-function(L, #this is just the list of course-specific data
 out<-list()
 for (nm in c("C-10","C-17","C-19","C-6","C-8")) OOfun(dat[[nm]])->out[[nm]]
 
+fun<-function(xx) {
+    sapply(xx,function(x) x[3,1])
+}
+lapply(out,fun)->zz
+do.call("rbind",zz)->zz
+matplot(t(zz),type="l",lty=1,col="black")
+
+
 sapply(out,nrow)->N
 out[N==3]->out
 lapply(out,function(x) x[,1])->tab
