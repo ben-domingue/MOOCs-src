@@ -1,7 +1,7 @@
 load("desc1.Rdata")
 #dat$`C-19`->L
 
-outfun<-function(L,block=NULL) {
+outfun<-function(L,block=NULL) { #block is the block of items you are interested in, the idea being that the earlier items should see more dramatic improvement than the later items (assuming that you are really seeing lags for those OO early items
     infun<-function(resp) {
         ifelse(as.matrix(resp)=="correct",1,0)->resp
         resp

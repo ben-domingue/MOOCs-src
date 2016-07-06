@@ -74,7 +74,7 @@ dev.off()
 
 #
 png("~/Downloads/moocs6.png",units="in",height=9,width=12,res=100)
-par(mfrow=c(4,5),mgp=c(2,1,0),mar=c(3.3,3.3,2,1))
+par(mfrow=c(3,7),mgp=c(2,1,0),mar=c(3.3,3.3,2,1))
 for (course in names(dat)) {
     plot(NULL,xlim=c(0,100),ylim=c(0,.1),xlab="days",ylab="",main="")
     mtext(side=3,line=.2,course)
@@ -97,3 +97,21 @@ for (course in names(dat)) {
     lines(hold,xlab="days",lwd=3,col="black",ylab="",main="")
 }
 dev.off()
+
+
+#
+par(mgp=c(2,1,0))
+plot(NULL,xlim=c(0,100),ylim=c(0,.13),xlab="days",ylab="",main="")
+for (course in names(dat)) {
+    dat[[course]]->x
+    x$first_attempt->fa.hold
+    apply(fa.hold,2,as.numeric)->fa.hold
+    min(unlist(fa.hold),na.rm=TRUE)->m
+    apply(fa.hold,1,min,na.rm=TRUE)->m1
+    apply(fa.hold,1,max,na.rm=TRUE)->M1
+##########################################################
+##Variability in when people take items. 
+    (M1-m1)/(24*60*60)->days
+    density(days)->den
+    lines(den,xlab="days",lwd=3,col="black",ylab="",main="")
+}

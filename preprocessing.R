@@ -31,7 +31,7 @@ courses<-list(ResGeo="EarthSciences_ResGeo202_Spring2015",
               WomensHealth.v2="GlobalHealth_INT.WomensHealth_July2015"
            )
 
-#names(courses)<-paste("C",1:length(courses),sep="-")
+names(courses)<-paste("C",1:length(courses),sep="-")
 
 set.dir<-"/home/bd/Dropbox/moocs/data/datastage.stanford.edu/researcher/EDUC_353A/exports_5-12/"
 
@@ -111,6 +111,14 @@ order(names(dat))->index
 dat[index]->dat
 do.call("rbind",tab)->tab
 tab #N people, N>.5, N items
+
+as.numeric(tab[,3])->x
+ifelse(x>5000,5000,x)->x
+as.numeric(tab[,5])->y
+par(mgp=c(2,1,0))
+plot(x,y,pch=19,xlab="N respondents",ylab="N Items",sub="Capped at 5000 respondents")
+abline(v=300)
+
 
 #change below directory to suit yourself
 save(dat,file="/home/bd/Dropbox/moocs/data/proc/desc1.Rdata")
