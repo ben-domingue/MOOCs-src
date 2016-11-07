@@ -1,4 +1,4 @@
-load("desc1.Rdata")
+load("imps.Rdata")
 
 est.dyn<-function(L,blk=NULL) {
     if (!is.null(blk)) {
@@ -109,14 +109,35 @@ est.dyn<-function(L,blk=NULL) {
 }
 
 
-out<-list()
-est.dyn(dat$`C-15`)->out[["C-15"]]
-est.dyn(dat$`C-17`)->out[["C-17"]]
-est.dyn(dat$`C-19`)->out[["C-19"]]
-est.dyn(dat$`C-13`,blk=1:75)->out[["C-13"]]
-est.dyn(dat$`C-1`)->out[["C-1"]]
+lapply(dat[c("C-6","C-15","C-17","C-19")],est.dyn)->out
 
-fun<-function(mod) {
+fun<-function(nm,out) {
+    out[[nm]]->mod
+                                        #
+    mod$st->st
+    mod$mod->mod
+    mod$means$x->aa
+    sum(abs(st$x)<.000000001)==sum(abs(aa)<.000000001)
+    ifelse(abs(aa)<.000001,NA,aa)->aa
+    aa->qumat
+    for (i in 1:ncol(aa)) {
+        ecdf(aa[,i])->f
+        f(aa[,i])->qu
+        qu->qumat[,i]
+    }
+    del<-numeric()
+    for (i in 2:ncol(qumat)) mean(abs(qumat[,i]-qumat[,i-1]),na.rm=TRUE)->del[i]
+    plot(del,main=nm,ylim=c(0,0.15),pch=19,type="b",lwd=2,cex=2,xlab="delta session",ylab="mean(abs(delta(ability)))")
+                                        #sample(1:nrow(aa),80)->index
+                                        #matplot(t(aa[index,]),type="l",lty=1,col="black",ylim=c(-3.5,3.5),ylab="ability",xlab="session")
+    apply(aa,2,var,na.rm=TRUE)->v
+    plot(v,main=nm,ylim=c(0,2.5),pch=19,type="b",lwd=2,cex=2,xlab="session",ylab="var ability")
+}
+par(mfrow=c(2,2),mgp=c(2,1,0),mar=c(3.3,3.3,2,1))
+lapply(c("C-17","C-19"),fun,out=out)
+
+fun<-function(nm,out) {
+    out[[nm]]->mod
     #
     mod$st->st
     mod$mod->mod
@@ -124,62 +145,15 @@ fun<-function(mod) {
     sum(abs(st$x)<.000000001)==sum(abs(aa)<.000000001)
     ifelse(abs(aa)<.000001,NA,aa)->aa
     sample(1:nrow(aa),80)->index
-    matplot(t(aa[index,]),type="l",lty=1,col="black",ylim=c(-3.5,3.5))
-    apply(aa,2,mean,na.rm=TRUE)->v
-    plot(v,main=nm,ylim=c(-2.5,2.5))
-    apply(aa,2,var,na.rm=TRUE)->v
-    plot(v,main=nm,ylim=c(0,2.5))
-    plot(mod$means$alpha,ylim=c(-3,3))
-    plot(mod$means$beta,ylim=c(-.2,2.5))
+    #matplot(t(aa[index,]),type="l",lty=1,col="black",ylim=c(-3.5,3.5))
+    #apply(aa,2,mean,na.rm=TRUE)->v
+    #plot(v,main=nm,ylim=c(-2.5,2.5))
+    #apply(aa,2,var,na.rm=TRUE)->v
+    #plot(v,main=nm,ylim=c(0,2.5))
+    plot(mod$means$alpha,ylim=c(-3,3),xlab="item",ylab="difficulty",pch=19)
+    plot(mod$means$beta,ylim=c(-.2,2.5),xlab="item",ylab="discrimination",pch=19)
 }
-par(mfrow=c(5,5))
-lapply(out,fun)
+par(mfrow=c(2,2),mgp=c(2,1,0),mar=c(3.3,3.3,2,1))
+lapply(c("C-17","C-19"),fun,out=out)
 
-#resgeo
-#[1] 0.76 0.88 0.99 1.11 1.22 1.33 1.44 1.50
-#medstat
-# [1] 0.48 0.51 0.53 0.58 0.64 0.69 0.78 0.82 0.90 0.91
-
-
-     
-## #############################
-## ## Estimate dynamic variational model using dynIRT()
-## data(mq_data)
-## nrow(mq_data$data.mq$rc)->N
-## ncol(mq_data$data.mq$rc)->J
-## mq_data$data.mq$T->T
-## str(mq_data$data.mq)
-## str(mq_data$cur.mq)
-## str(mq_data$priors.mq)
-
-## #starting values
-## st<-list()
-## #infun<-function(resp) {
-## #    ifelse(as.matrix(resp)=="correct",1,0)->resp
-## #}
-## #infun(L$first_grade)->resp
-## #colMeans(resp,na.rm=TRUE)->cm
-## #-1*(cm-mean(cm,na.rm=TRUE))/sd(cm,na.rm=TRUE)->cm
-## matrix(rep(0,J),ncol=1)->st$alpha
-## matrix(rep(0,J),ncol=1)->st$beta
-## st$x<-matrix(c(1,0),nrow=N,ncol=T)
-## #priors
-## pr<-list()
-## pr$x.mu0<-matrix(0,nrow=N,ncol=1)
-## pr$x.sigma0<-matrix(1,nrow=N,ncol=1)
-## pr$beta.mu<-matrix(c(0,0),2,1)
-## pr$beta.sigma<-matrix(c(1,0,0,1),2,2)
-## pr$omega2<-matrix(0.1,nrow=N,ncol=1)
-
-## lout <- dynIRT(.data = mq_data$data.mq,#
-##                .starts=st,
-##                .priors=pr,
-##                #.starts = mq_data$cur.mq,
-##                                              #.priors = mq_data$priors.mq,
-##                .control = {list(
-##                                threads = 1,
-##                                verbose = TRUE,
-##                                thresh = 1e-6,
-##                                maxit=500
-##                            )})
 

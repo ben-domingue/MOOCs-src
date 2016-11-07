@@ -156,3 +156,20 @@ structure(c("EarthSciences_ResGeo202_Spring2015", "GlobalHealth_IWHHR_Summer2014
 "C-20", "C-21", "C-22", "C-23", "C-24", "C-25", "C-26", "C-27", 
 "C-28"), NULL))
 
+###################################################
+##for imps
+c("C-6","C-8","C-10","C-15","C-17","C-19")->nms
+rownames(tab) %in% nms -> index
+
+as.numeric(tab[,3])->x
+ifelse(x>5000,5000,x)->x
+as.numeric(tab[,5])->y
+par(mgp=c(2,1,0))
+ifelse(index,"red","black")->col
+ifelse(index,2.5,1)->cex
+png("/tmp/scatter.png",units="in",height=4,width=5,res=100)
+plot(x,y,pch=19,xlab="N respondents",ylab="N Items",sub="Capped at 5000 respondents",col=col,cex=cex)
+abline(v=300)
+dev.off()
+
+tab[index,c(3,5)]->tab

@@ -1,8 +1,8 @@
-load("desc1.Rdata")
+load("imps.Rdata")
 #dat$`C-19`->L
 
 OOfun<-function(L, #this is just the list of course-specific data
-                look.ahead.seq=c(1,2,5,10,25), #the look.ahead window will be used to define OO. response i will have to occur after response i+look.ahead to be OO (slight modification of this rule to deal with NA values)
+                look.ahead.seq=c(1,2,5), #the look.ahead window will be used to define OO. response i will have to occur after response i+look.ahead to be OO (slight modification of this rule to deal with NA values)
                 threshold=0.3) #some items end of having way too many OO responses. if the item has more than threshold proportion of the responses OO, remove it.
 {
     tr<-list()
@@ -86,32 +86,48 @@ OOfun<-function(L, #this is just the list of course-specific data
 
     
 out<-list()
-for (nm in c("C-10","C-17","C-19","C-6","C-8")) {
-    for (thr in c(.1,.25,.5)) {
+for (nm in names(dat)) {
+    for (thr in c(.25)) {#for (thr in c(.1,.25,.5)) {
         OOfun(dat[[nm]],threshold=thr)->out[[paste(nm,thr)]]
     }
 }
 do.call("c",out)->out2
 
+sapply(out2,function(x) sum(x$oo)/nrow(x))
 
 
-bigfun<-function(xx) {
+bigfun<-function(xx,look.ahead=NULL) {
     fun<-function(tmp) {
 ########################################################
         ##our hypothesis: a y=1 response should be more likely if oo=1 (conditional on x)
         ##glm(y~x+oo,tmp,family="binomial")->m1 #takes too long
         lm(y~x+oo,tmp)->m1 #hoping for a positive coef on oo
-        summary(m1)$coef->tr[[as.character(look.ahead)]]
+        summary(m1)$coef
     }
     lapply(xx,fun)->tmp
     lapply(tmp,function(x) x[3,1])->zz
-    unlist(zz)
+    unlist(zz)->tr
+    if (!is.null(look.ahead)) ifelse(look.ahead,tr,NA)->tr
+    tr
 }
-par(mfrow=c(5,3),mgp=c(2,1,0),mar=c(3.3,3.3,1,1))
+png("/tmp/oo1.png",units="in",height=4,width=5,res=100)
+par(mfrow=c(3,2),mgp=c(2,1,0),mar=c(3.3,3.3,2,1))
+for (i in 1:length(out)) {
+    bigfun(out[[i]],look.ahead=c(TRUE,FALSE,FALSE))->y
+    plot(as.numeric(names(out[[i]])),y,xlim=range(as.numeric(names(out[[i]]))),lwd=2,cex=2,ylim=c(-.1,0.1),main=names(dat)[i],pch=19,type="b",ylab="change in pr",xlab="N items late")
+    abline(h=0)
+}
+dev.off()
+                                        #
+png("/tmp/oo2.png",units="in",height=4,width=5,res=100)
+par(mfrow=c(3,2),mgp=c(2,1,0),mar=c(3.3,3.3,2,1))
 for (i in 1:length(out)) {
     bigfun(out[[i]])->y
-    plot(y,type="l",ylim=c(-.3,0.1),xlab=names(out)[i]); abline(h=0)
+    plot(as.numeric(names(out[[i]])),y,xlim=range(as.numeric(names(out[[i]]))),lwd=2,cex=2,ylim=c(-.1,0.1),main=names(dat)[i],pch=19,type="b",ylab="change in pr",xlab="N items late")
+    abline(h=0)
 }
+dev.off()
+
 
 fun<-function(x) {
     by(x$post,x$oo,mean,na.rm=TRUE)->x
@@ -126,11 +142,29 @@ do.call("rbind",txt)->tmp
 split(data.frame(tab),tmp[,1])->zz
 par(mfrow=c(3,2))
 for (i in 1:length(zz)) {
-    plot(zz[[i]],xlim=c(0.4,0.75),ylim=c(0.4,0.75),type="n")
-    
+    plot(zz[[i]],xlim=c(0.45,0.9),ylim=c(0.45,0.9),type="n",xlab="mean for in-order",ylab="mean for oo")
+    text(zz[[i]][,1],zz[[i]][,2],rownames(zz[[i]]),cex=1)
     abline(0,1)
+    mtext(side=3,names(zz)[i])
 }
 
-
+strsplit(rownames(tab)," ")->txt
+do.call("rbind",txt)->tmp
+split(data.frame(tab),tmp[,1])->zz
+par(mfrow=c(3,2))
+for (i in 1:length(zz)) {
+    zz[[i]][1,,drop=FALSE]->aa
+    plot(aa,xlim=c(0.45,0.9),ylim=c(0.45,0.9),xlab="mean for in-order",ylab="mean for oo")
+    #text(aa[,1],aa[,2],rownames(aa),cex=1)
+    abline(0,1)
+    mtext(side=3,names(zz)[i])
+}
 
     
+
+fun<-function(x) {
+    lm(post~x+oo,x)->mod
+    summary(mod)$coef[3,]
+}
+lapply(out2,fun)->tab
+
